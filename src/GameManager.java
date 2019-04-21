@@ -45,8 +45,8 @@ public class GameManager {
 
 	public static void main(String args[]) throws Exception {
 		int numPlayers = 2;
-		AlphaBetaPlayer rpMax = new AlphaBetaPlayer(true, 0);
-		AlphaBetaPlayer rpMin = new AplhaBetaPlayer(false, 1);
+		AlphaBetaPlayer rpMax = new AlphaBetaPlayer(true);
+		AlphaBetaPlayer rpMin = new AplhaBetaPlayer(false);
 		Pente pente = new Pente();
 		GameManager mgmt = new GameManager(pente, rpMax);
 		long start = new Date().getTime();
