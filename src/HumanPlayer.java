@@ -4,7 +4,10 @@
  */
 
 public class HumanPlayer implements GamePlayer{
-	public HumanPlayer(){
+	private GameManager mgmt;
+public HumanPlayer(){
+
+
 		return;
 	}
 	
@@ -22,7 +25,7 @@ public class HumanPlayer implements GamePlayer{
 	}
 
 	public void setGameManager(GameManager mgmt) {
-
+this.mgmt=mgmt;
 	}
 
 
