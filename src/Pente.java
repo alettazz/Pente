@@ -110,10 +110,10 @@ public class Pente implements Game {
 	}
 	
 
-	public double move(Move move) throws MoveException {
+	public double move(Move move) throws Exception {
 		if (over) {
 			if (move.isUndoMove() == false) {
-				throw new MoveException("Game Over");
+				throw new Exception("Game Over");
 			}
 		}
 		if (move == null){
