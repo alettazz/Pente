@@ -6,7 +6,7 @@ import java.util.List;
  */
 
 public interface Game{
-	public double move(Move moveToMake) throws MoveException;
+	public double move(Move moveToMake) throws Exception;
 	public void undoMove();
 	public boolean isOver();
 	public double getGameValue();
