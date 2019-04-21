@@ -1,7 +1,12 @@
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class UndoMoveObject {
+/**
+ * Created by @alettazz.
+ * Date: 4/19/2019
+ */
+
+Public class UndoMoveObject {
 		private LinkedList <int[]> capturedCoordinates;
 		private double[] valueDifferences;
 		private Move move;
