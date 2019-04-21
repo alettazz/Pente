@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,93 +9,101 @@ import java.util.List;
 
 public class AlphaBetaPlayer implements GamePlayer {
 
-	boolean maximize;
 
-	ArrayList alpha;
-	ArrayList beta;
+
+	boolean maximize; //maxgame logic
+	double alpha;
+	double beta;
 	GameManager mgmt;
-	Move best;
-	LinkedList <Move> moveStack = new LinkedList <Move>();
+	Move bestMove;
+	LinkedList <Move> moveList;
+	int depth = 3;
 	
-	public AlphaBetaPlayer(boolean isMax) {
-		try {
-			alpha = new ArrayList();
-			beta = new ArrayList();
-			alpha.add(new Move(1,1));
-			alpha.add(Double.NEGATIVE_INFINITY);
-			beta.add(new Move(1,1));
-			beta.add(Double.POSITIVE_INFINITY);
-			maximize = isMax;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public AlphaBetaPlayer(boolean isMax){
+		super(isMax);
+		alpha = Double.NEGATIVE_INFINITY;
+		beta = Double.POSITIVE_INFINITY;
+		maximize = isMax;
 	}
-
+	
 	public static void main(String[] args) {
 		Game pente = new Pente();
+		System.out.println(pente);
 		AlphaBetaPlayer max = new AlphaBetaPlayer(true);
 		AlphaBetaPlayer min = new AlphaBetaPlayer(false);
-
-		AlphaBetaPlayer activePlayer = min;
-		while (!pente.isOver()) {
+		
+		AlphaBetaPlayer turn=max;
+		int numTurns = 3;
+		int turns = 1;
+		while ( !pente.isOver()){
 			try {
-				Move toMake = activePlayer.move(pente);
-				System.out.println("Player submitted: " + toMake);
-				pente.move(toMake);
-				((Pente) pente).diagnose();
-				
-				if (activePlayer == max) {
-					activePlayer = min;
+				Move moveToMake = turn.move(pente);
+				pente.move(moveToMake);
+				((Pente)pente).diagnose();
+				if (turn == max){
+					turn = min;
 				} else {
-					activePlayer = max;
+					turn = max;
 				}
-				
 			} catch (Exception e) {
 				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			++turns;
 		}
-
 	}
-
+	
 	public Move move(Game g) throws Exception {
-		ArrayList best = null;
-		if (maximize) {
-			best = maxValue(g, alpha, beta, 10, 0);
-		} else {
-			best = minValue(g, alpha, beta, 10, 0);
+		moveList = new LinkedList <Move>();
+		if (maximize){
+			maxValue (g, alpha, beta, depth, 0);//new beginning for depth
+		}else {
+			minValue (g, alpha, beta, depth, 0);
 		}
-		return (Move) best.get(0);
+		System.out.println("Returning move: "+ bestMove);
+		return bestMove;
 	}
-
-
-
-	public ArrayList maxValue(Game g, ArrayList a, ArrayList b, int depthLimit,
-			int depth) {
-		if (depth >= depthLimit) {
+	
+	@Override
+	public Move move() throws Exception {
+		if (mgmt == null){
+			throw new Exception();
+		}
+		bestMove = null;
+		if (maximize){
+			maxValue (mgmt.game, alpha, beta, depth, 0);
+		}else {
+			minValue (mgmt.game, alpha, beta, depth, 0);
+		}
+		return moveList.pop();
+	}
+	
+	public double maxValue(Game g, double a, double b, int depthLimit, int depth) {
+		if (depth >= depthLimit){
 			return a;
 		}
 		if (g.isOver()) {
-			ArrayList r = new ArrayList();
-			r.add(a.get(0));
-			r.add(g.getGameValue());
-			return r;
+			return g.getGameValue();
 		} else {
 			List<Move> moves = g.getAvailableMoves();
 			for (int i = 0; i < moves.size(); i++) {
 				try {
-					ArrayList m = new ArrayList();
-					Move toMake = moves.get(i);
-					g.move(toMake);
-					m.add(toMake);
-					m.add(g.getGameValue());
-					ArrayList v = minValue(g, a, b, depthLimit, ++depth);
+					g.move(moves.get(i));
+					double v = minValue(g, a, b, depthLimit, depth++);
 					g.move(new Move("undo"));
-					if ((Double) v.get(1) >= (Double) a.get(1)) {
+					if (v > a){						
 						a = v;
+						if (depth == 0)
+							System.out.println("DEPTH IS 0!");
+						if(depth == 1){
+							bestMove = moves.get(i);
+							System.out.println("Best move is now: "+bestMove);
+						}
+
 					}
-					if ((Double) a.get(1) >= (Double) b.get(1)) {
+					if (a >= b){
+						
 						return a;
 					}
 				} catch (Exception e) {
@@ -106,31 +114,31 @@ public class AlphaBetaPlayer implements GamePlayer {
 		return a;
 	}
 
-	public ArrayList minValue(Game g, ArrayList a, ArrayList b, int depthLimit,
-			int depth) {
-		if (depth >= depthLimit) {
+	public double minValue(Game g, double a, double b, int depthLimit, int depth) {
+		if (depth >= depthLimit){
 			return b;
 		}
 		if (g.isOver()) {
-			ArrayList r = new ArrayList();
-			r.add(b.get(0));
-			r.add(g.getGameValue());
-			return r;
+			return g.getGameValue();
 		} else {
 			List<Move> moves = g.getAvailableMoves();
 			for (int i = 0; i < moves.size(); i++) {
 				try {
-					ArrayList m = new ArrayList();
-					Move toMake = moves.get(i);
-					g.move(toMake);
-					m.add(toMake);
-					m.add(1, g.getGameValue());
-					ArrayList v = maxValue(g, a, b, depthLimit, ++depth);
+					g.move(moves.get(i));
+					double v = maxValue(g, a, b, depthLimit, depth++);
 					g.move(new Move("undo"));
-					if ((Double) v.get(1) <= (Double) b.get(1)) {
+					if (v < b){
 						b = v;
+
+						if (depth == 0)
+							System.out.println("DEPTH IS 0!");
+						if(depth==1){
+							bestMove = moves.get(i);
+							System.out.println("Best move is : "+bestMove);
+						}
+
 					}
-					if ((Double) a.get(1) >= (Double) b.get(1)) {
+					if (a >= b){
 						return b;
 					}
 				} catch (Exception e) {
@@ -150,12 +158,6 @@ public class AlphaBetaPlayer implements GamePlayer {
 
 	@Override
 	public void updateWeights() {
-
-	}
-
-	@Override
-	public Move move() throws Exception {
-		return null;
 	}
 
 }
